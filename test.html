@@ -3,37 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minter Wizard Layout</title>
-    <!-- Tailwind CSS for the classes you used -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Nexus Minting Orbit - Next Gen</title>
     <style>
         :root {
-            /* Aapke classes ke liye zaroori colors aur variables */
-            --background: 0 0% 0%;
-            --foreground: 0 0% 100%;
-            --surface: #050505;
-            --primary: #ffffff;
+            --background: oklch(5% 0 0);
+            --surface: oklch(15% 0.02 250 / 0.7);
+            --accent: oklch(70% 0.25 250);
+            --radius: 2rem;
+            --font-sans: 'Inter', system-ui, sans-serif;
         }
 
         body {
-            background-color: oklch(0% 0 0); /* Pure black base */
+            background-color: var(--background);
+            color: white;
+            font-family: var(--font-sans);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
 
-        /* Star field animation setup */
-        .minter-star-field {
+        /* --- ORBIT CANVAS SECTION --- */
+        .minter-container {
+            position: relative;
+            width: 500px;
+            height: 600px;
+            z-index: 10;
+        }
+
+        canvas {
             position: absolute;
             inset: 0;
-            background-image: radial-gradient(circle, #fff 1px, transparent 1px);
-            background-size: 50px 50px; /* Small stars */
-            opacity: 0.2;
+            z-index: 1;
+            filter: hue-rotate(45deg);
         }
 
-        .minter-star-zoom {
-            transform: scale(var(--universe-star-zoom));
-            transition: transform 0.5s ease-out;
+        /* --- SMOOTH BLUR VEIL (Aapka Diya Hua Code) --- */
+        .minter-blur-veil {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
         }
 
-        /* Layer styling for the smooth blurs */
+        .minter-smooth-blur {
+            position: absolute;
+            left: 0; right: 0;
+            height: var(--smooth-blur-height);
+            background: var(--smooth-blur-background-gradient);
+        }
+
+        .minter-smooth-blur-top { top: 0; }
+        .minter-smooth-blur-bottom { bottom: 0; }
+
         .minter-smooth-blur-layer {
             position: absolute;
             inset: 0;
@@ -42,51 +66,145 @@
             -webkit-mask-image: var(--smooth-blur-mask);
         }
 
-        .minter-smooth-blur {
-            position: absolute;
-            width: 100%;
-            height: var(--smooth-blur-height);
-            background: var(--smooth-blur-background-gradient);
-            pointer-events: none;
+        /* --- CONTENT OVERLAY --- */
+        .content-card {
+            position: relative;
+            z-index: 20;
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 3rem;
+            border-radius: var(--radius);
+            text-align: center;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+            margin: 20px;
+        }
+
+        .mint-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(to bottom, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .btn-mint {
+            background: var(--accent);
+            color: black;
+            padding: 1.2rem 2.5rem;
+            border-radius: 100px;
+            border: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 30px var(--accent);
+        }
+
+        .btn-mint:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 0 50px var(--accent);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
     </style>
 </head>
+<body>
 
-<!-- EXACT DITTO START -->
-<body class="min-h-screen bg-background font-sans text-foreground antialiased">
-        <div hidden="">
-        <!--$-->
-        <!--/$-->
+    <div class="minter-container">
+        <!-- CANVAS: Orbit Animation -->
+        <canvas id="orbitCanvas" class="absolute inset-0 z-[1] h-full w-full" aria-label="mint progress orbit"></canvas>
+
+        <!-- BLUR VEIL (Aapka Code Integration) -->
+        <div class="minter-blur-veil" aria-hidden="true">
+            <div class="minter-smooth-blur minter-smooth-blur-top" style="--smooth-blur-height:15%;--smooth-blur-background-gradient:linear-gradient(to top, transparent, oklch(0% 0 0 / 0.2))">
+                <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:12.0px;--smooth-blur-mask:linear-gradient(to bottom, rgba(0,0,0,0) 0%, #000 100%)"></span>
+                <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:4px;--smooth-blur-mask:linear-gradient(to bottom, rgba(0,0,0,0) 20%, #000 80%)"></span>
+            </div>
+            
+            <div class="minter-smooth-blur minter-smooth-blur-bottom" style="--smooth-blur-height:15%;--smooth-blur-background-gradient:linear-gradient(to bottom, transparent, oklch(0% 0 0 / 0.2))">
+                <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:12.0px;--smooth-blur-mask:linear-gradient(to top, rgba(0,0,0,0) 0%, #000 100%)"></span>
+            </div>
         </div>
-        <main class="minter-wizard relative min-h-screen overflow-hidden bg-surface text-primary">
-            <div class="minter-star-zoom" style="--universe-star-zoom:2.45">
-                <div class="minter-star-field" aria-hidden="true"></div>
-            </div>
-            <canvas class="absolute inset-0 z-[1] h-full w-full " aria-label="mint progress orbit"></canvas>
-            <div class="minter-blur-veil" aria-hidden="true">
-                <div class="minter-smooth-blur minter-smooth-blur-top" style="--smooth-blur-height:6%;--smooth-blur-background-gradient:linear-gradient(to top, transparent, oklch(0% 0 0 / 0.01))">
-                    <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:12.0px;--smooth-blur-mask:linear-gradient(to bottom, rgba(0,0,0,0) 0.000%, #000 0.000%, #000 16.667%, rgba(0,0,0,0) 50.000%)"></span>
-                    <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:11.7px;--smooth-blur-mask:linear-gradient(to bottom, rgba(0,0,0,0) 0.000%, #000 16.667%, #000 33.333%, rgba(0,0,0,0) 66.667%)"></span>
-                    <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:10.1px;--smooth-blur-mask:linear-gradient(to bottom, rgba(0,0,0,0) 0.000%, #000 33.333%, #000 50.000%, rgba(0,0,0,0) 83.333%)"></span>
-                    <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:1.9px;--smooth-blur-mask:linear-gradient(to bottom, rgba(0,0,0,0) 16.667%, #000 50.000%, #000 66.667%, rgba(0,0,0,0) 100.000%)"></span>
-                    <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:0.3px;--smooth-blur-mask:linear-gradient(to bottom, rgba(0,0,0,0) 33.333%, #000 66.667%, #000 83.333%, rgba(0,0,0,0) 100.000%)"></span>
-                    <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:0.0px;--smooth-blur-mask:linear-gradient(to bottom, rgba(0,0,0,0) 50.000%, #000 83.333%, #000 100.000%, rgba(0,0,0,0) 100.000%)"></span>
-                </div>
-                <div class="minter-smooth-blur minter-smooth-blur-bottom" style="--smooth-blur-height:6%;--smooth-blur-background-gradient:linear-gradient(to bottom, transparent, oklch(0% 0 0 / 0.01))">
-                    <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:12.0px;--smooth-blur-mask:linear-gradient(to top, rgba(0,0,0,0) 0.000%, #000 0.000%, #000 16.667%, rgba(0,0,0,0) 50.000%)"></span>
-                    <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:11.7px;--smooth-blur-mask:linear-gradient(to top, rgba(0,0,0,0) 0.000%, #000 16.667%, #000 33.333%, rgba(0,0,0,0) 66.667%)"></span>
-                    <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:10.1px;--smooth-blur-mask:linear-gradient(to top, rgba(0,0,0,0) 0.000%, #000 33.333%, #000 50.000%, rgba(0,0,0,0) 83.333%)"></span>
-                    <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:1.9px;--smooth-blur-mask:linear-gradient(to top, rgba(0,0,0,0) 16.667%, #000 50.000%, #000 66.667%, rgba(0,0,0,0) 100.000%)"></span>
-                    <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:0.3px;--smooth-blur-mask:linear-gradient(to top, rgba(0,0,0,0) 33.333%, #000 66.667%, #000 83.333%, rgba(0,0,0,0) 100.000%)"></span>
-                    <span class="minter-smooth-blur-layer" style="--smooth-blur-amount:0.0px;--smooth-blur-mask:linear-gradient(to top, rgba(0,0,0,0) 50.000%, #000 83.333%, #000 100.000%, rgba(0,0,0,0) 100.000%)"></span>
-                </div>
-            </div>
 
-            <!-- Content Area (Yahan aap apna content daal sakte hain) -->
-            <div class="relative z-10 flex items-center justify-center h-screen">
-                <h1 class="text-white text-2xl font-light tracking-widest opacity-50">INITIALIZING UNIVERSE...</h1>
+        <!-- MAIN UI -->
+        <div class="content-card">
+            <h1 class="mint-title">GENESIS NFT</h1>
+            <p style="color: rgba(255,255,255,0.6); margin-bottom: 2rem;">Phase 1: The Orbit is Live</p>
+            
+            <button class="btn-mint" onclick="startMinting()">MINT NOW</button>
+
+            <div class="stats-grid">
+                <div>Supply<br><b style="color: white;">444 / 1000</b></div>
+                <div>Price<br><b style="color: white;">0.05 ETH</b></div>
             </div>
-        </main>
+        </div>
+    </div>
+
+    <script>
+        // Orbit Canvas Animation Logic
+        const canvas = document.getElementById('orbitCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function initCanvas() {
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = canvas.width / 2;
+                this.y = canvas.height / 2;
+                this.radius = Math.random() * 2;
+                this.angle = Math.random() * Math.PI * 2;
+                this.velocity = 0.01 + Math.random() * 0.02;
+                this.distance = 100 + Math.random() * 150;
+            }
+            update() {
+                this.angle += this.velocity;
+                this.currentX = this.x + Math.cos(this.angle) * this.distance;
+                this.currentY = this.y + Math.sin(this.angle) * this.distance;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.currentX, this.currentY, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(100, 150, 255, 0.5)';
+                ctx.fill();
+            }
+        }
+
+        for(let i=0; i<100; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        function startMinting() {
+            alert("Connecting to Smart Contract...");
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        animate();
+    </script>
 </body>
-<!-- EXACT DITTO END -->
 </html>
