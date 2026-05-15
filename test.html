@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Space Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Base Styles */
+        :root {
+            --universe-star-zoom: 2.45;
+            --surface: #0a0a0c;
+            --primary: #ffffff;
+        }
+
+        body {
+            background-color: var(--surface);
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Star Field Effect */
+        .minter-star-field {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 90px 40px, #fff, rgba(0,0,0,0));
+            background-size: 200px 200px;
+            animation: zoom 10s infinite linear;
+            opacity: 0.3;
+        }
+
+        @keyframes zoom {
+            from { transform: scale(1); }
+            to { transform: scale(var(--universe-star-zoom)); }
+        }
+
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+
+        /* Blur Veil Logic (from your snippet) */
+        .minter-smooth-blur {
+            position: absolute;
+            left: 0; right: 0;
+            height: 15%;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .minter-smooth-blur-top { top: 0; background: linear-gradient(to bottom, var(--surface), transparent); }
+        .minter-smooth-blur-bottom { bottom: 0; background: linear-gradient(to top, var(--surface), transparent); }
+
+        .orbit-canvas {
+            filter: drop-shadow(0 0 15px rgba(255,255,255,0.2));
+        }
+    </style>
+</head>
+<body class="min-h-screen font-sans text-white antialiased">
+
+    <!-- Background Layers -->
+    <main class="relative min-h-screen overflow-hidden">
+        
+        <!-- Star Field -->
+        <div class="minter-star-zoom absolute inset-0">
+            <div class="minter-star-field" aria-hidden="true"></div>
+        </div>
+
+        <!-- Animated Progress Orbit (Canvas Placeholder) -->
+        <canvas id="orbitCanvas" class="orbit-canvas absolute inset-0 z-[1] h-full w-full" aria-label="mint progress orbit"></canvas>
+
+        <!-- Smooth Blur Veils -->
+        <div class="minter-smooth-blur minter-smooth-blur-top"></div>
+        <div class="minter-smooth-blur minter-smooth-blur-bottom"></div>
+
+        <!-- Main Content -->
+        <div class="relative z-20 flex flex-col items-center justify-center min-h-screen px-4">
+            <div class="glass-card p-8 md:p-12 max-w-lg w-full text-center">
+                <div class="mb-6 inline-block p-4 rounded-full bg-white/5 border border-white/10 animate-pulse">
+                    <svg class="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                
+                <h1 class="text-4xl font-bold tracking-tight mb-4 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
+                    Minter Wizard
+                </h1>
+                
+                <p class="text-gray-400 mb-8 leading-relaxed">
+                    Your assets are being synthesized in the cosmic void. Please wait for the minting orbit to complete.
+                </p>
+
+                <button class="w-full py-4 px-6 rounded-xl bg-white text-black font-bold hover:bg-gray-200 transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                    INITIALIZE MINT
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Simple Orbit Animation on Canvas
+        const canvas = document.getElementById('orbitCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        let angle = 0;
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 300;
+
+            // Draw Orbit Ring
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Draw Pulsing Planet
+            const x = centerX + Math.cos(angle) * radius;
+            const y = centerY + Math.sin(angle) * radius;
+
+            ctx.beginPath();
+            ctx.arc(x, y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#60a5fa';
+            ctx.fill();
+
+            angle += 0.01;
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
